@@ -26,18 +26,16 @@ public class AudioManager : MonoBehaviour
         isChasing = true;
         var chaseClip = availableMusic.Find(x => x.name.Equals("bossChase"));
         if (chaseClip == null) throw new UnityException("Cannot find boss chase music");
-        musicPlayer.clip = chaseClip;
-        musicPlayer.Play();
+        musicPlayer.PlayOneShot(chaseClip, 0.5f);
     }
 
     IEnumerator PlayRandomAmbiance()
     {
         if (isChasing) yield break;
-        // odczekaj losową długość w granicy od 1 do 30 sekund
-        yield return new WaitForSeconds(Random.Range(1f, 30f));
-        Debug.Log("Playing random ambiance...");
         var randomClip = availableAmb[Random.Range(0, availableAmb.Count)];
         ambiancePlayer.PlayOneShot(randomClip);
+        Debug.Log("Playing random ambiance");
+        yield return new WaitForSeconds(Random.Range(2f, 10f));
     }
 
 
@@ -68,5 +66,13 @@ public class AudioManager : MonoBehaviour
         var res1 = audioMixer.SetFloat(FX_VOL, A(settings.fxVolume));
         var res2 = audioMixer.SetFloat(BGM_VOL, A(settings.musicVolume));
         var res3 = audioMixer.SetFloat(AMB_VOL, A(settings.ambianceVolume));
+
+
+        var chaseClip = availableMusic.Find(x => x.name.Equals("bossChase"));
+        if (chaseClip == null) throw new UnityException("Cannot find boss chase music");
+        if (musicPlayer.clip == chaseClip)
+        {
+            if (!isChasing) musicPlayer.Stop();
+        }
     }
 }

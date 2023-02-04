@@ -6,6 +6,7 @@ public class CichoXD : MonoBehaviour
 {
     [SerializeField] private GameObject onigiriPrefab;
     int uses = 3;
+    public AudioSource onigiriClickSound;
 
     public void DispenseOnigiri()
     {
@@ -20,6 +21,7 @@ public class CichoXD : MonoBehaviour
             {
                 uses -= 1;
                 DispenseOnigiri();
+                onigiriClickSound.Play();
             }
 
         }
