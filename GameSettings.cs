@@ -41,6 +41,8 @@ public class Settings
     public FullScreenMode fullScreenMode = FullScreenMode.ExclusiveFullScreen;
     public float gamma = 1f;
     public bool sprintToggle = false, crouchToggle = true;
+    public bool cheatsEnabled = false;
+    public bool unlimitedEnergy = false, invisible = false, superSprint = false;
 
     public override string ToString()
     {
@@ -57,6 +59,7 @@ public class Settings
         returner += $"fullScreenMode: {fullScreenMode}\n";
         returner += $"sprintToggle: {sprintToggle}\n";
         returner += $"crouchToggle: {crouchToggle}\n";
+        returner += $"cheatsEnabled: {cheatsEnabled}\n";
         return returner.Trim();
     }
 }
@@ -99,6 +102,9 @@ public class GameSettings : MonoBehaviour
     [Header("Controls Settings")]
     [SerializeField] private Toggle toggleSprintUI;
     [SerializeField] private Toggle toggleCrouchUI;
+    [SerializeField] private Toggle enableUnlimitedEnergy;
+    [SerializeField] private Toggle enableInvisible;
+    [SerializeField] private Toggle enableSuperSprint;
 
     [SerializeField]
     private GameObject[] tabs;
@@ -146,6 +152,9 @@ public class GameSettings : MonoBehaviour
             toggleCrouchUI.isOn = newSettings.crouchToggle;
         if (settings.sprintToggle != newSettings.sprintToggle)
             toggleSprintUI.isOn = newSettings.sprintToggle;
+        enableInvisible.isOn = false;
+        enableUnlimitedEnergy.isOn = false;
+        enableSuperSprint.isOn = false;
     }
 
     private void Awake()
@@ -297,6 +306,18 @@ public class GameSettings : MonoBehaviour
     {
         settings.crouchToggle = newValue;
     }
+    public void SetToggleUnlimitedEnergy(bool newValue)
+    {
+        settings.unlimitedEnergy = settings.cheatsEnabled ? newValue : false;
+    }
+    public void SetToggleInvisible(bool newValue)
+    {
+        settings.invisible = settings.cheatsEnabled ? newValue : false;
+    }
+    public void SetToggleSuperSprint(bool newValue)
+    {
+        settings.superSprint = settings.cheatsEnabled ? newValue : false;
+    }
     #endregion
 
 
@@ -322,8 +343,12 @@ public class GameSettings : MonoBehaviour
         toSave.fullScreenMode = (FullScreenMode)fullscreensDropdown.value;
         toSave.crouchToggle = toggleCrouchUI.isOn;
         toSave.sprintToggle = toggleSprintUI.isOn;
+        toSave.cheatsEnabled = enableUnlimitedEnergy.IsActive() || enableInvisible.IsActive() || enableSuperSprint.IsActive();
+        toSave.unlimitedEnergy = enableUnlimitedEnergy.isOn;
+        toSave.invisible = enableInvisible.isOn;
+        toSave.superSprint = enableSuperSprint.isOn;
 
-        string json = JsonUtility.ToJson(toSave);
+    string json = JsonUtility.ToJson(toSave);
         PlayerPrefs.SetString("Settings", json);
         PlayerPrefs.Save();
     }
