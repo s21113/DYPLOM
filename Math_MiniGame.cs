@@ -102,16 +102,13 @@ public class Math_MiniGame : MinigameBase<MathGame>
         if (isCorrect == true)
         {
             //parent.GetComponentInChildren<AudioSource>().PlayOneShot(successAudio);
-            Debug.LogWarning("halo ziemia prosze dodać SUKCES audio clip cichy i nieinwazyjny");
             parent.transform.parent.gameObject.SetActive(false);
-            GameObject.Destroy(_this);
             return true;
         }
         else
         {
             solutionInput.text = string.Empty;
             //parent.GetComponentInChildren<AudioSource>().PlayOneShot(failureAudio);
-            Debug.LogWarning("halo ziemia prosze dodać failure audio clip cichy i nieinwazyjny");
             return false;
         }
     }

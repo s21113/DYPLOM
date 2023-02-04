@@ -22,7 +22,7 @@ public abstract class MinigameBase<T>
             //parent.GetComponentInChildren<AudioSource>().PlayOneShot(successAudio);
             Debug.LogWarning("halo ziemia prosze dodać SUKCES audio clip cichy i nieinwazyjny");
             parent.transform.parent.gameObject.SetActive(false);
-            GameObject.Destroy(_this);
+            _this.SetActive(false);
             return true;
         }
         else
@@ -55,7 +55,7 @@ public abstract class MinigameBase<T>
     public void CloseGUI(GameObject parent)
     {
         parent.transform.parent.gameObject.SetActive(false);
-        GameObject.Destroy(_this);
+        GameObject.Destroy(_this.transform.gameObject);
     }
 
     public void BringUp(GameObject parent)

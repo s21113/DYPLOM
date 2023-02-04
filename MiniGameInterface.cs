@@ -16,6 +16,8 @@ public class MiniGameInterface : MonoBehaviour
 
     public void LoadMinigame()
     {
+        solutionInput.text = string.Empty;
+
         int decision = new Random().Next(0, 2);
 
         switch (decision)
@@ -56,11 +58,12 @@ public class MiniGameInterface : MonoBehaviour
                 isSolved = (minigame as Rebus_MiniGame).Solve(parent, solutionInput);
                 break;
             default:
-                Destroy(gameObject);
+                Destroy(parent.transform.GetChild(0).gameObject);
                 throw new MinigameException("Solve(): a wypierdalajcie mi z tym");
         }
+        solutionInput.text = string.Empty;
         if (isSolved)
-            Destroy(gameObject);
+            Destroy(parent.transform.GetChild(0).gameObject);
     }
 
     public void BringUp()
@@ -80,6 +83,7 @@ public class MiniGameInterface : MonoBehaviour
             default:
                 throw new MinigameException("BringUp(): a wypierdalajcie mi z tym");
         }
+        PauseHandler.instance.inSomeMenu = true;
         EventSystem.current.SetSelectedGameObject(solutionInput.gameObject, null);
         solutionInput.OnPointerClick(new PointerEventData(EventSystem.current));
     }
