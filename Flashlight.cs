@@ -52,7 +52,7 @@ public class Flashlight : MonoBehaviour
         //transform.rotation = Quaternion.Slerp(transform.rotation, follow.transform.rotation, speed * Time.deltaTime);
         if (Input.GetKeyDown("l"))
         {
-            ChargeUp(200);
+            ChargeUp(500);
         }
 
     }

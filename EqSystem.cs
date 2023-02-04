@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System;
 
 /// <summary>
 /// Klasa EqSystem będzie wreszcie przechowywała
@@ -9,10 +10,10 @@ using System.IO;
 /// </summary>
 public class EqSystem : MonoBehaviour
 {
-    public Items _i;
-    public Journals _j;
     readonly public static int INVENTORY_SIZE = 9;
     int importantPoints = 0;
+    [SerializeField] private List<Item> items = new List<Item>();
+    [SerializeField] private List<Journal> journals = new List<Journal>();
     private List<Item> collectedItems;
     private List<Journal> collectedJournals;
 
@@ -46,6 +47,7 @@ public class EqSystem : MonoBehaviour
     
     public void ReceiveMessage(Journal j)
     {
+        if (collectedJournals.Contains(j)) return;
         collectedJournals.Add(j);
     }
     public List<Journal> GetCollectedJournals()
@@ -53,11 +55,22 @@ public class EqSystem : MonoBehaviour
         return collectedJournals;
     }
 
+    public Item FindItem(string match)
+    {
+        return items.Find(i => i.displayName.Trim().Equals(match))
+            ?? items.Find(i => i.displayName.Trim().ToLower().Contains(match.ToLower()));
+    }
+    public Journal FindJournal(string match)
+    {
+        return journals.Find(j => j.title.Trim().Equals(match))
+            ?? journals.Find(j => j.title.Trim().ToLower().Contains(match.ToLower()));
+    }
+
     IEnumerator TestMessagingService()
     {
-        ReceiveMessage(_j.possibleJournals[0]);
+        ReceiveMessage(FindJournal("Story 1"));
         yield return new WaitForSeconds(20f);
-        ReceiveMessage(_j.possibleJournals[1]);
+        ReceiveMessage(FindJournal("Story 2"));
         yield break;
     }
 
@@ -69,6 +82,8 @@ public class EqSystem : MonoBehaviour
 
     void Start()
     {
+        items = new List<Item>(Resources.LoadAll<Item>("Inventory/Items"));
+        journals = new List<Journal>(Resources.LoadAll<Journal>("Inventory/Journals"));
         StartCoroutine(TestMessagingService());
     }
 

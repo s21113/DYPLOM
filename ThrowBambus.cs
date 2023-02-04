@@ -19,7 +19,7 @@ public class ThrowBambus : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("PlayerBody");
 
-        flashlight = transform.Find("FP Camera").GetChild(0);
+        flashlight = transform.Find("flashlight");
         //flashlight = GameObject.Find("Sphere").transform;
         //ball = GameObject.Find("Bambus");
         //reppelant = GameObject.Find("OdstraszaczPrefab");

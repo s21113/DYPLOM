@@ -273,11 +273,11 @@ public class BOSS : MonoBehaviour
         startedMoving = true;
         if (currentPhase != BossPhases.Chasing) yield return null;
 
-        float speedF1 = Vector3.Distance(transform.position, potentialPlayer.transform.position) / 6;
-        agencik.speed = ((10*playersCollectibles/14) + 2f) / (3/speedF1);
-
         while (currentPhase == BossPhases.Chasing)
         {
+            float speedF1 = 4 / Vector3.Distance(transform.position, potentialPlayer.transform.position);
+            agencik.speed = ((9 / speedF1) * 0.13f) + 2;
+            Debug.Log($"distance: {speedF1*2} | speedF1: {speedF1} | final speed: {agencik.speed}");
             agencik.SetDestination(potentialPlayer.transform.position);
             yield return null;
         }

@@ -82,6 +82,7 @@ public class BetterPlayerMovement : MonoBehaviour
     private Vector2 currentInput;
 
     private float xRotation=0;
+    private Transform spawnPointer;
 
 
     // debug rzeczy
@@ -95,6 +96,7 @@ public class BetterPlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        spawnPointer = GameObject.FindGameObjectWithTag("Respawn").transform;
         settings = GameSettings.ReadSettingsFromFile();
         inventory = _inventory.GetComponent<EqSystem>();
         //playerCamera = GetComponentInChildren<Camera>();
@@ -145,6 +147,10 @@ public class BetterPlayerMovement : MonoBehaviour
                 troll1 = 4;
                 inventory.func_f742358363();
                 Debug.Log("Pong!");
+            }
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                ExitMinigame();
             }
         }
     }
@@ -263,6 +269,12 @@ public class BetterPlayerMovement : MonoBehaviour
             moveDirection.y -= gravity * Time.deltaTime;
 
         characterController.Move(moveDirection * Time.deltaTime);
+
+        if (transform.position.y <= -100f)
+        {
+            transform.position = spawnPointer.position;
+            inventory.ReceiveMessage(inventory.FindJournal("Out of bounds"));
+        }
     }
 
     private void CameraFocus()

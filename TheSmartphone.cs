@@ -116,7 +116,7 @@ public class TheSmartphone : MonoBehaviour
         for (int i = messageObjs.Count; i < c; i++)
         {
             var msg = newJournals[i];
-            SmartphoneOption msgAsOption = new SmartphoneOption(msg.name);
+            SmartphoneOption msgAsOption = new SmartphoneOption(msg.title);
             msgAsOption.isMenu = true;
             messageObjs.Add(CreateMessageObject(msgContainer, msg, i, msgAsOption));
 
@@ -132,7 +132,7 @@ public class TheSmartphone : MonoBehaviour
         for (int i = itemObjs.Count; i < c; i++)
         {
             var it = newItems[i];
-            SmartphoneOption itAsOption = new SmartphoneOption(it.name);
+            SmartphoneOption itAsOption = new SmartphoneOption(it.displayName);
             itemObjs.Add(CreateItemObject(invContainer, it, i, itAsOption));
         }
     }
@@ -190,7 +190,7 @@ public class TheSmartphone : MonoBehaviour
     {
         GameObject itemToggleObj = Instantiate(togglePrefab);
         itemToggleObj.name = $"{opt.name} Item";
-        itemToggleObj.GetComponentInChildren<Text>().text = opt.name;
+        itemToggleObj.GetComponentInChildren<Text>().text = item.displayName;
         // ustaw toggla
         var toggleC = itemToggleObj.GetComponent<Toggle>();
         toggleC.transition = Selectable.Transition.None;
@@ -221,7 +221,7 @@ public class TheSmartphone : MonoBehaviour
         List<SmartphoneOption> test = new List<SmartphoneOption>();
         foreach (var it in its)
         {
-            SmartphoneOption itAsOption = new SmartphoneOption(it.name);
+            SmartphoneOption itAsOption = new SmartphoneOption(it.displayName);
             itemObjs.Add(CreateItemObject(invContainer, it, its.IndexOf(it), itAsOption));
             test.Add(itAsOption);
         }
@@ -255,8 +255,7 @@ public class TheSmartphone : MonoBehaviour
     {
         GameObject msgToggleObj = Instantiate(togglePrefab);
         msgToggleObj.name = "Message " + i;
-        string tmpname = msg.contents.Substring(0, 13) + "...";
-        msgToggleObj.GetComponentInChildren<Text>().text = tmpname;
+        msgToggleObj.GetComponentInChildren<Text>().text = msg.title;
 
         GameObject msgObj = new GameObject("Contents of Message " + i);
         Text msgContent = msgObj.AddComponent<Text>();
@@ -296,7 +295,7 @@ public class TheSmartphone : MonoBehaviour
         foreach (var msg in msgs)
         {
             i++;
-            SmartphoneOption msgAsOption = new SmartphoneOption(msg.name);
+            SmartphoneOption msgAsOption = new SmartphoneOption(msg.title);
             msgAsOption.isMenu = true;
             messageObjs.Add(CreateMessageObject(msgContainer, msg, i, msgAsOption));
             test.Add(msgAsOption);
@@ -429,9 +428,9 @@ public class TheSmartphone : MonoBehaviour
         var txt = currentMessageObj.GetComponent<Text>();
         txt.text = contents.GetComponent<Text>().text;
         txt.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-        txt.fontSize = 20;
+        txt.fontSize = 14;
         txt.horizontalOverflow = HorizontalWrapMode.Wrap;
-        var rect = currentMessageObj.GetComponent<RectTransform>().sizeDelta = new Vector2(160, 400);
+        var rect = currentMessageObj.GetComponent<RectTransform>().sizeDelta = new Vector2(100, 250);
         currentMessageObj.SetActive(true);
     }
 

@@ -25,7 +25,7 @@ public class EnergyBar : MonoBehaviour
         difficultyLvl = "Easy";
         stamina = 300;
         staminaMaxLevel = 300;
-        staminaRate = 0.25f; //how fast is decreasing
+        staminaRate = 0.11f; //how fast is decreasing
         health = 4f;
         healthMax = 4f;
         energy = 500;
