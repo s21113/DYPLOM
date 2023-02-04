@@ -60,8 +60,9 @@ public class PauseHandler : MonoBehaviour
 
     void Update()
     {
-        if (inSomeMenu == false && Input.GetKeyUp(KeyCode.Escape))
+        if (Input.GetKeyUp(KeyCode.Escape))
         {
+            if (inSomeMenu) return;
             if (inSettingsMenu)
                 ExitSettings();
             else
