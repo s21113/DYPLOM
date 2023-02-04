@@ -140,7 +140,7 @@ public class BetterPlayerMovement : MonoBehaviour
                 else
                     troll1 = 4;
             }
-            if (troll1 == 0)
+            if (troll1 == -1)
             {
                 troll1 = 4;
                 inventory.func_f742358363();
@@ -335,12 +335,19 @@ public class BetterPlayerMovement : MonoBehaviour
     {
         flashingScreen = GameObject.Find("FlashingScreen");
 
-        if (collider.gameObject.tag == "BOSS" || collider.gameObject.tag == "Enemy")
+        if (collider.gameObject.tag == "Enemy")
         {
             flashingScreen.GetComponent<FlashingScript>().SetRedScreen();
         }
+        /*if (collider.gameObject.CompareTag("BOSS"))
+        {
+            if (inventory.GetImportantPoints() < 1) return;
+            while (playerStats.GetHealthLevel() > 0)
+                playerStats.DecreaseHealth();
+            GameObject.FindGameObjectWithTag("FlashingScreen").GetComponent<FlashingScript>().SetRedScreen();
+        }*/
 
-        if (collider.gameObject.tag == "PowerBank")
+        /*if (collider.gameObject.tag == "PowerBank")
         {
             if (GetComponentInChildren<Flashlight>().CheckChargeLevel() < 500)
             {
@@ -356,9 +363,6 @@ public class BetterPlayerMovement : MonoBehaviour
                 playerStats.updateHealthBarUP();
                 Destroy(collider.gameObject);
             }
-        }
-
-
-
+        }*/
     }
 }

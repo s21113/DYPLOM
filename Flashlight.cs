@@ -9,7 +9,7 @@ public class Flashlight : MonoBehaviour
     public GameObject follow;
     Light lightItself;
     public float speed = 3.0f;
-    public AudioSource clickSound;
+    private AudioSource clickSound;
     public int BatteryCharge;
     private double energyMax;
     private string difficoultyLvl;
@@ -40,6 +40,7 @@ public class Flashlight : MonoBehaviour
     void Start()
     {
         lightItself = GetComponent<Light>();
+        clickSound = GetComponent<AudioSource>();
         follow = GameObject.FindGameObjectWithTag("PlayerBody");
         vectorOffset = transform.position - follow.transform.position;
     }
@@ -59,27 +60,28 @@ public class Flashlight : MonoBehaviour
     IEnumerator Discharge()
     {
         difficoultyLvl = follow.GetComponentInChildren<EnergyBar>().getDifficultyLvl();
-        if (difficoultyLvl == "Easy")
-        {
-            dischargeRate = 1;
-        }
-        else if (difficoultyLvl == "Medium")
-        {
-            dischargeRate = 2;
-        }
-        else if (difficoultyLvl == "Hard")
-        {
-            dischargeRate = 3;
-        }
-        else
-        {
-            dischargeRate = 1;
-        }
+        dischargeRate = 1;
+        // if (difficoultyLvl == "Easy")
+        // {
+        //     dischargeRate = 1;
+        // }
+        // else if (difficoultyLvl == "Medium")
+        // {
+        //     dischargeRate = 2;
+        // }
+        // else if (difficoultyLvl == "Hard")
+        // {
+        //     dischargeRate = 3;
+        // }
+        // else
+        // {
+        //     dischargeRate = 1;
+        // }
 
-        for (; BatteryCharge >= 0; BatteryCharge -= dischargeRate)
+        for (; BatteryCharge > 0; BatteryCharge -= dischargeRate)
         {
             follow.GetComponentInChildren<EnergyBar>().updateEnergyBar(BatteryCharge);
-            yield return new WaitForSeconds(.07f);
+            yield return new WaitForSeconds(.11f);
         }
 
         if (BatteryCharge <= 0)

@@ -14,44 +14,35 @@ public class EnergyBar : MonoBehaviour
     public double staminaRate;
     private string difficultyLvl;
 
-    public Animator fatigueAnimator;
+    public GameObject fatigueObj;
+    private AudioSource heartbeat;
+    private Animator fatigueAnimator;
 
     // Start is called before the first frame update
     void Awake()
     {
+        //LOL
         difficultyLvl = "Easy";
         stamina = 300;
         staminaMaxLevel = 300;
-        staminaRate = 0.08f; //how fast is decreasing
+        staminaRate = 0.25f; //how fast is decreasing
         health = 4f;
         healthMax = 4f;
         energy = 500;
         energyMax = 500;
-
-
     }
 
     public void Start()
     {
-
+        fatigueObj = GameObject.Find("Fatigue FX");
+        heartbeat = fatigueObj.GetComponent<AudioSource>();
+        fatigueAnimator = fatigueObj.GetComponent<Animator>();
     }
 
     public void Update()
     {
         fatigueAnimator.SetFloat("Stamina", (float)(stamina / staminaMaxLevel));
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            SetDifficultyLvl("Easy");
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            SetDifficultyLvl("Medium");
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            SetDifficultyLvl("Hard");
-        }
-
+        //Debug.Log(health);
     }
 
     public void SetDifficultyLvl(string difficulty)
@@ -94,22 +85,19 @@ public class EnergyBar : MonoBehaviour
 
 
 
-    public void updateHealthBarDown()
+    public void DecreaseHealth()
     {
-        if (health > 0) {
+        if (health > 0)
+        {
             float level = (float)((health -= 1f) / healthMax);
-            Debug.Log(level);
-            //healthBar.localScale = new Vector3(level * 6, 3f);
         }
     }
 
-    public void updateHealthBarUP()
+    public void IncreaseHealth()
     {
         if (health < 4)
         {
             float level = (float) ((health += 1) / healthMax);
-            Debug.Log(level);
-            //healthBar.localScale = new Vector3(level * 6, 3f);
         }
     }
 
