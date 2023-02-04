@@ -7,7 +7,7 @@ using UnityEngine;
 public class Item : ScriptableObject
 {
     public Sprite icon;
-    public new string name;
+    public string displayName;
     public string tag;
     [TextArea(1, 99)] public string description;
 }
