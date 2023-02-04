@@ -61,6 +61,7 @@ public class TheSmartphone : MonoBehaviour
     /// </summary>
     private void GetAndUpdateCollectibles()
     {
+        //elo
         // muszę inaczej zrobić pobieranie znajdziek
         var collectibles = eqSystem.GetImportantPoints();
         var option = options.FindByNamePart("Points");
@@ -77,11 +78,27 @@ public class TheSmartphone : MonoBehaviour
         var playerStats = eqSystem.transform.parent.GetComponentInChildren<EnergyBar>();
         Dictionary<float, string> energyTexts = new Dictionary<float, string>
         {
-                {1, "█ █ █ █" },
+            {1.00f, "█ █ █ █" },
+            {0.95f, "█ █ █ █" },
+            {0.90f, "█ █ █ █" },
+            {0.85f, "█ █ █ █" },
+            {0.80f, "█ █ █ █" },
             {0.75f, "█ █ █" },
-             {0.5f, "█ █" },
+            {0.70f, "█ █ █" },
+            {0.65f, "█ █ █" },
+            {0.60f, "█ █ █" },
+            {0.55f, "█ █ █" },
+            {0.50f, "█ █" },
+            {0.45f, "█ █" },
+            {0.40f, "█ █" },
+            {0.35f, "█ █" },
+            {0.30f, "█ █" },
             {0.25f, "█" },
-               {0f, " " }
+            {0.20f, "█" },
+            {0.15f, "█" },
+            {0.10f, "█" },
+            {0.05f, "█" },
+            {0.01f, " " }
         };
         string _ = "";
         float energy = (float)(playerStats.GetEnergyLevel() / playerStats.energyMax);
