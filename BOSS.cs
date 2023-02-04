@@ -7,11 +7,32 @@ public class BOSS : MonoBehaviour
 {
     private int playersCollectibles;
     private float speed;
-    private bool startedMoving = false;
-    private float yPos;
+    [SerializeField] private bool startedMoving = false;
     [SerializeField] private bool isDistracted;
+
     public GameObject eqSystem;
+    public AudioSource chaseMusic;
+    public AudioSource roarPlayer;
+    private AudioSource soundPlayer;
     private NavMeshAgent agencik;
+    private Animator pandaAnimator;
+    private Camera bossCam;
+
+
+
+    private bool PlayerInCloseRange()
+    {
+        if (GameSettings.ReadSettingsFromFile().invisible)
+            return false;
+        var scrP = bossCam.WorldToViewportPoint(potentialPlayer.transform.position);
+        return (scrP.x > 0 && scrP.x < 0.8f && scrP.y > 0 && scrP.y < 0.5f && scrP.z >= 0 && scrP.z < 100);
+    }
+
+    private bool PlayerCanSeeMe()
+    {
+        var scrP = potentialPlayer.GetComponentInChildren<Camera>().WorldToViewportPoint(transform.position);
+        return (scrP.x > 0 && scrP.x < 0.8f && scrP.y > 0 && scrP.y < 0.5f && scrP.z >= 0 && scrP.z < 100);
+    }
 
     // definicja faz bossa
     #region PHASES
@@ -26,9 +47,13 @@ public class BOSS : MonoBehaviour
     }
     public BossPhases currentPhase;
 
-    public void TriggerDistraction()
+    IEnumerator TriggerDistraction()
     {
-
+        if (currentPhase != BossPhases.Distracted)
+            yield break;
+        agencik.speed = 0f;
+        yield return new WaitForSeconds(5f);
+        currentPhase = BossPhases.Roaming;
     }
 
     /// <summary>
@@ -37,29 +62,37 @@ public class BOSS : MonoBehaviour
     /// <returns>nowa faza bossa</returns>
     private BossPhases ChangePhase()
     {
-        var distanceToPlayer = Vector3.Distance(this.transform.position, potentialPlayer.transform.position);
+        if (PlayerInCloseRange())
+        {
+            return BossPhases.Chasing;
+        }
+        else
+        {
+            chaseMusicPlaying = false;
+        }
         if (playersCollectibles == 0)
         {
+            StopCoroutine(MovementChase());
             return BossPhases.Idle;
         }
-        else if (playersCollectibles >= 0 && playersCollectibles < 3)
+        if (playersCollectibles > 0 && playersCollectibles < 4)
         {
             StopCoroutine(MovementIdle());
+            StopCoroutine(MovementChase());
             return BossPhases.Roaming;
         }
-        else if (playersCollectibles >= 3 && playersCollectibles < 7)
+        if (playersCollectibles >= 4 && playersCollectibles < 7)
         {
             StopCoroutine(MovementRoam());
+            StopCoroutine(MovementChase());
             return BossPhases.Searching;
         }
-        else if (playersCollectibles >= 7 || distanceToPlayer <= 16f)
+        if (playersCollectibles >= 7 && !GameSettings.ReadSettingsFromFile().invisible)
         {
-            StopCoroutine(MovementIdle());
-            StopCoroutine(MovementRoam());
             StopCoroutine(MovementSearch());
             return BossPhases.Chasing;
         }
-        else return BossPhases.Unknown;
+        return BossPhases.Unknown;
     }
     #endregion
 
@@ -67,6 +100,105 @@ public class BOSS : MonoBehaviour
     private GameObject bossIdleWaypoint;
     private GameObject[] bossRoamWaypoints;
     private GameObject[] bossSearchWaypoints;
+    #endregion
+
+    #region AUDIO
+
+    private List<AudioClip> audioClips;
+    [SerializeField] private AudioClip snoreClip;
+    [SerializeField] private AudioClip stepClip;
+    [SerializeField] private AudioClip wakeUpClip;
+    [SerializeField] private AudioClip angerClip;
+    [SerializeField] private AudioClip rageClip;
+    [SerializeField] private AudioClip rageStepClip;
+
+    private float walkSoundRate = 3f;
+    [SerializeField] private bool playedWakeup = false;
+    [SerializeField] private bool playedAnger = false;
+    [SerializeField] private int playedRage = 0;
+
+    private bool chaseMusicPlaying = false;
+
+    IEnumerator PlayStepSounds()
+    {
+        while (isActiveAndEnabled)
+        {
+            soundPlayer.Play();
+            yield return new WaitForSeconds(walkSoundRate);
+        }
+    }
+
+    IEnumerator PlayRoarSound()
+    {
+        if (playedWakeup) yield break;
+        playedWakeup = true;
+        roarPlayer.PlayOneShot(wakeUpClip, 0.8f);
+        yield return new WaitForSeconds(10f);
+    }
+
+    IEnumerator PlayAngryRoarSound()
+    {
+        if (playedAnger) yield break;
+        playedAnger = true;
+        roarPlayer.PlayOneShot(angerClip, 0.7f);
+        yield return new WaitForSeconds(10f);
+    }
+
+    IEnumerator PlayRageQuitSound()
+    {
+        if (playedRage > 0) yield break;
+        playedRage++;
+        if (playedRage < 2)
+            roarPlayer.PlayOneShot(rageClip, 0.5f);
+        StopCoroutine(PlayRageQuitSound());
+        yield break;
+    }
+
+
+    IEnumerator PlayChaseMusic()
+    {
+        if (chaseMusicPlaying == true) yield break;
+        chaseMusicPlaying = true;
+        chaseMusic.volume = 0.5f;
+        chaseMusic.PlayDelayed(1f);
+        yield break;
+    }
+
+    private void SelectSoundToPlay()
+    {
+        if (currentPhase != BossPhases.Chasing)
+            chaseMusic.Stop();
+
+        if (playedRage > 0) StopCoroutine(PlayRageQuitSound());
+
+        switch (currentPhase)
+        {
+            case BossPhases.Idle:
+                walkSoundRate = 4f;
+                soundPlayer.clip = snoreClip;
+                return;
+            case BossPhases.Roaming:
+                walkSoundRate = 3f;
+                soundPlayer.clip = stepClip;
+                StartCoroutine(PlayRoarSound());
+                return;
+            case BossPhases.Searching:
+                walkSoundRate = 2f;
+                soundPlayer.clip = stepClip;
+                StartCoroutine(PlayAngryRoarSound());
+                return;
+            case BossPhases.Chasing:
+                walkSoundRate = 2f;
+                soundPlayer.clip = rageStepClip;
+                StartCoroutine(PlayChaseMusic());
+                if (playedRage < 1) StartCoroutine(PlayRageQuitSound());
+                return;
+            default:
+                soundPlayer.clip = null;
+                return;
+        }
+    }
+
     #endregion
 
     #region MOVEMENTS
@@ -78,13 +210,13 @@ public class BOSS : MonoBehaviour
         startedMoving = false;
         if (startedMoving == true) yield break;
         startedMoving = true;
+        if (currentPhase != BossPhases.Idle) yield return null;
+
         agencik.speed = 0f;
-        agencik.Warp(bossIdleWaypoint.transform.position);
 
-        if (currentPhase != BossPhases.Idle) yield break;
-
-        yield return new WaitForSeconds(20);
+        agencik.SetDestination(bossIdleWaypoint.transform.position);
         startedMoving = false;
+        yield return new WaitForSeconds(1);
     }
 
     IEnumerator MovementRoam()
@@ -92,20 +224,17 @@ public class BOSS : MonoBehaviour
         startedMoving = false;
         if (startedMoving == true) yield break;
         startedMoving = true;
-        agencik.speed = 1.5f;
+        if (currentPhase != BossPhases.Roaming) yield return null;
+        agencik.isStopped = false;
 
-        if (currentPhase != BossPhases.Roaming) yield break;
+        agencik.speed = 4f;
 
         var RWI = Random.Range(0, bossRoamWaypoints.Length); // Random Waypoint Index
-        Vector3 randomMovement = new Vector3
-        {
-            x = Random.Range(0,2) + bossRoamWaypoints[RWI].transform.position.x,
-            y = yPos,
-            z = Random.Range(0,2) + bossRoamWaypoints[RWI].transform.position.z
-        };
+        Vector3 randomMovement = bossRoamWaypoints[RWI].transform.position;
         agencik.SetDestination(randomMovement);
-        yield return new WaitForSeconds(6);
+        yield return new WaitWhile(() => currentPhase == BossPhases.Roaming && agencik.hasPath);
         startedMoving = false;
+        yield return new WaitForSeconds(1);
     }
 
     IEnumerator MovementSearch()
@@ -113,131 +242,64 @@ public class BOSS : MonoBehaviour
         startedMoving = false;
         if (startedMoving == true) yield break;
         startedMoving = true;
+        if (currentPhase != BossPhases.Searching) yield return null;
+        agencik.isStopped = false;
 
-        agencik.speed = 1.9f;
-
-        if (currentPhase != BossPhases.Searching) yield break;
-
-        var RWI = Random.Range(0, bossSearchWaypoints.Length); // Random Waypoint Index
-        Vector3 randomMovement = new Vector3
+        var RWI = Random.Range(0, bossRoamWaypoints.Length); // Random Waypoint Index
+        Vector3 randomMovement = bossRoamWaypoints[RWI].transform.position;
+        if (bossSearchWaypoints.Length > 0 && Mathf.Abs(transform.position.y - randomMovement.y) >= 1f)
         {
-            x = Random.Range(-3,3) + bossSearchWaypoints[RWI].transform.position.x,
-            y = yPos,
-            z = Random.Range(-3,3) + bossSearchWaypoints[RWI].transform.position.z
-        };
-
-        /*agencik.SetDestination(randomMovement);
-        Debug.Log("Search phase Finished first move");
-        yield return new WaitForSeconds(9);
-        {
-            Vector3 moveAround = new Vector3(Random.Range(-3, 3), 0, Random.Range(-5, 5));
-            moveAround += transform.position;
-            agencik.SetDestination(moveAround);
-            Debug.Log("Search phase Finished second move");
-            yield return new WaitForSeconds(4);
+            if (PlayerCanSeeMe())
+                agencik.speed = 10f;
+            else
+                agencik.Warp(new List<GameObject>(bossSearchWaypoints).Find(x => x.transform.position.y >= randomMovement.y).transform.position);
         }
-        {
-            Vector3 moveAround = new Vector3(Random.Range(-3, 3), 0, Random.Range(-5, 5));
-            moveAround += transform.position;
-            agencik.SetDestination(moveAround);
-            Debug.Log("Search phase Finished third move");
-            yield return new WaitForSeconds(4);
-        }*/
-
-        {
-            var oldPos = transform.position;
-            float dist = Vector3.Distance(oldPos, randomMovement);
-            Debug.Log($"Search phase Attempting to move to ({randomMovement.x}, {randomMovement.z})... distance: {dist}");
-            while (dist >= 1f)
-            {
-                transform.position = Vector3.MoveTowards(transform.position, randomMovement, speed * Time.deltaTime);
-                dist = Vector3.Distance(transform.position, randomMovement);
-                yield return null;
-            }
-            Debug.Log("Search phase Finished first move");
-            yield return new WaitForSeconds(9);
-            startedMoving = false;
-        }
-
-        {
-            Vector3 moveAround = new Vector3(Random.Range(-3, 3), 0, Random.Range(-5, 5));
-            var oldPos = transform.position;
-            moveAround += oldPos;
-            float dist = Vector3.Distance(oldPos, moveAround);
-            Debug.Log($"Search phase #2 Attempting to move to ({moveAround.x}, {moveAround.z})... distance: {dist}");
-            while (dist >= 1f)
-            {
-                transform.position = Vector3.MoveTowards(transform.position, moveAround, speed * Time.deltaTime);
-                dist = Vector3.Distance(transform.position, moveAround);
-                yield return null;
-            }
-            Debug.Log("Search phase Finished second move");
-            yield return new WaitForSeconds(4);
-            startedMoving = false;
-        }
-
-        {
-            Vector3 moveAround = new Vector3(Random.Range(-3, 3), 0, Random.Range(-5, 5));
-            var oldPos = transform.position;
-            moveAround += oldPos;
-            float dist = Vector3.Distance(oldPos, moveAround);
-            Debug.Log($"Search phase Attempting to move to ({moveAround.x}, {moveAround.z})... distance: {dist}");
-            while (dist >= 1f)
-            {
-                transform.position = Vector3.MoveTowards(transform.position, moveAround, speed * Time.deltaTime);
-                dist = Vector3.Distance(transform.position, moveAround);
-                yield return null;
-            }
-            Debug.Log("Search phase Finished third move");
-            yield return new WaitForSeconds(4);
-            startedMoving = false;
-        }
+        agencik.speed = 4f + (playersCollectibles / 7);
+        agencik.SetDestination(randomMovement);
+        yield return new WaitWhile(() => currentPhase == BossPhases.Searching && agencik.hasPath);
+        startedMoving = false;
+        yield return new WaitForSeconds(1);
     }
 
     // preparados na szukanie
     [SerializeField] private GameObject potentialPlayer;
+
     // po prostu szukanie gracza i nagły boost do szybkości
     IEnumerator MovementChase()
     {
+        agencik.isStopped = false;
         startedMoving = false;
         if (startedMoving == true) yield break;
         startedMoving = true;
+        if (currentPhase != BossPhases.Chasing) yield return null;
 
-        agencik.speed = 3f;
+        float speedF1 = Vector3.Distance(transform.position, potentialPlayer.transform.position) / 6;
+        agencik.speed = ((5*playersCollectibles/10) + 2f) / (3/speedF1);
 
-        AudioManager.instance.SwitchToChaseMusic();
-        Vector3 playerPos = potentialPlayer.transform.position;
-        var distanceToPlayer = Vector3.Distance(this.transform.position, potentialPlayer.transform.position);
-        playerPos = potentialPlayer.transform.position;
-        agencik.SetDestination(playerPos);
-        yield return null;
+        while (currentPhase == BossPhases.Chasing)
+        {
+            agencik.SetDestination(potentialPlayer.transform.position);
+            yield return null;
+        }
         startedMoving = false;
     }
 
-    /*IEnumerator MovementScared()
-    {
-
-    }*/
-    #endregion
-
     private void SetMovement()
     {
+        startedMoving = true;
         switch (currentPhase)
         {
             case BossPhases.Idle:
-                startedMoving = true;
                 StartCoroutine(MovementIdle());
                 return;
             case BossPhases.Roaming:
-                startedMoving = true;
                 StartCoroutine(MovementRoam());
                 return;
             case BossPhases.Searching:
-                startedMoving = true;
                 StartCoroutine(MovementSearch());
                 return;
             case BossPhases.Chasing:
-                startedMoving = true;
+                startedMoving = false;
                 StartCoroutine(MovementChase());
                 return;
             default:
@@ -246,42 +308,51 @@ public class BOSS : MonoBehaviour
         }
     }
 
+    #endregion
+
 
 
     private void Awake()
     {
-        //potentialPlayer = GameObject.FindGameObjectWithTag("PlayerBody");
+        potentialPlayer = GameObject.FindGameObjectWithTag("PlayerBody");
         bossIdleWaypoint = GameObject.FindGameObjectWithTag("BossIdleWaypoint");
         bossRoamWaypoints = GameObject.FindGameObjectsWithTag("BossRoamWaypoint");
         bossSearchWaypoints = GameObject.FindGameObjectsWithTag("BossSearchWaypoint");
         agencik = GetComponent<NavMeshAgent>();
     }
-
-
-    private new Renderer renderer;
-    public Shader shader;
-    public Texture Texture, Texture2;
-    public Texture m_MainTexture, m_Normal, m_Metal;
-
     void Start()
     {
+        audioClips = new List<AudioClip>(Resources.LoadAll<AudioClip>("Sounds/Boss"));
         currentPhase = BossPhases.Unknown;
-        yPos = transform.position.y;
-        eqSystem = GameObject.Find("EqSystem");
+        soundPlayer = GetComponent<AudioSource>();
+
+        snoreClip = audioClips.Find(a => a.name.Equals("spanko"));
+        stepClip = audioClips.Find(a => a.name.Equals("krok"));
+        rageStepClip = audioClips.Find(a => a.name.Equals("wkurzonykrok"));
+        wakeUpClip = audioClips.Find(a => a.name.Equals("pobudka"));
+        angerClip = audioClips.Find(a => a.name.Equals("wkurzenie"));
+        rageClip = audioClips.Find(a => a.name.Equals("kurwica"));
+
+        pandaAnimator = GetComponent<Animator>();
+        bossCam = GetComponentInChildren<Camera>();
+        agencik.Warp(bossIdleWaypoint.transform.position);
+        StartCoroutine(PlayStepSounds());
     }
 
     void Update()
     {
         playersCollectibles = eqSystem.GetComponent<EqSystem>().GetImportantPoints();
-        if (currentPhase != BossPhases.Distracted) currentPhase = ChangePhase();
+        pandaAnimator.SetInteger("Collectibles", playersCollectibles);
+        if (currentPhase != BossPhases.Distracted)
+        {
+            currentPhase = ChangePhase();
+            SelectSoundToPlay();
+        }
+        pandaAnimator.SetBool("Asleep", currentPhase == BossPhases.Idle);
         if (startedMoving == false)
-        {
             SetMovement();
-        }
-        if (currentPhase == BossPhases.Chasing)
-        {
-
-        }
+        speed = Vector3.Project(agencik.desiredVelocity, transform.forward).magnitude;
+        pandaAnimator.SetFloat("Speed", speed);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -289,6 +360,15 @@ public class BOSS : MonoBehaviour
         if (other.gameObject.CompareTag("Bambus"))
         {
             currentPhase = BossPhases.Distracted;
+            StartCoroutine(TriggerDistraction());
+        }
+        if (other.gameObject.CompareTag("PlayerBody"))
+        {
+            var playerStats = other.gameObject.GetComponentInChildren<EnergyBar>();
+            if (playerStats == null) { Debug.Log("I am null"); return; }
+            while (playerStats.GetHealthLevel() > 0)
+                playerStats.DecreaseHealth();
+            GameObject.FindGameObjectWithTag("FlashingScreen").GetComponent<FlashingScript>().SetRedScreen();
         }
     }
 
