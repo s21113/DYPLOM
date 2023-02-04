@@ -6,35 +6,36 @@ public class NewElevatorController : MonoBehaviour
 {
     public Transform playerCamera;
     public float maxDistance = 100f;
-    private bool up = false, down = false;
+    private bool up, down;
     public Animator elevatorAnim;
-    public Animator elevatorDoorsAnim, elevatorFrameUpAnim, elevatorFrameDownAnim;
+    public Animator elevatorDoorsAnim;
+    public Animator elevatorFrameUpAnim, elevatorFrameDownAnim;
     public AudioSource buttonSound;
     public AudioSource elevatorSound;
     private float timer = 3.5f;
 
-    private GameObject elevator, elevatorFrameUp, elevatorFrameDown;
-    private GameObject buttonUp;
-    private GameObject buttonDown;
-    private GameObject elevatorCallUp, elevatorCallDown, upCollider, downCollider;
+    [Header("Elevator Stuff")]
+    public GameObject elevator;
+    public GameObject elevatorFrameUp;
+    public GameObject elevatorFrameDown;
+
+    [Header("Button Stuff")]
+    public GameObject buttonUp;
+    public GameObject buttonDown;
+
+    [Header("Call + Collider Stuff")]
+    public GameObject elevatorCallUp;
+    public GameObject elevatorCallDown;
+    public GameObject upCollider;
+    public GameObject downCollider;
 
     // Start is called before the first frame update
     void Start()
     {
-        elevator = GameObject.FindWithTag("Elevator").GetComponentInChildren<GameObject>();
-        elevatorFrameUp = GameObject.FindWithTag("ElFrameUp").GetComponentInChildren<GameObject>();
-        elevatorFrameDown = GameObject.FindWithTag("ElFrameDown").GetComponentInChildren<GameObject>();
-        //elevatorAnim = elevator.GetComponent<Animator>();
+        up = true;
+        down = false;
 
-        //elevatorAnim = elevator.GetComponent<Animator>(); 
-        buttonUp = GameObject.FindWithTag("ElevatorUp").GetComponentInChildren<GameObject>();
-        buttonDown = GameObject.FindWithTag("ElevatorDown").GetComponentInChildren<GameObject>();
-        elevatorCallUp = GameObject.FindWithTag("ElFrameUpKey").GetComponentInChildren<GameObject>();
-        elevatorCallDown = GameObject.FindWithTag("ElFrameDownKey").GetComponentInChildren<GameObject>();
-
-        //upCollider = GameObject.FindWithTag("UpCollider").GetComponentInChildren<GameObject>();
-        //downCollider = GameObject.FindWithTag("DownCollider").GetComponentInChildren<GameObject>();
-
+        elevatorAnim = elevator.GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -43,8 +44,6 @@ public class NewElevatorController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             Pressed();
-            
-            
         }
         timer -= Time.deltaTime;
         //print("Czasownik: "+timer);
@@ -55,7 +54,7 @@ public class NewElevatorController : MonoBehaviour
             elevatorSound.Stop();
             elevatorDoorsAnim.SetBool("Opened", true);
         }
-        if(timer > 0.0f)
+        if (timer > 0.0f)
         {
             elevatorDoorsAnim.SetBool("Opened", false);
         }
@@ -79,16 +78,16 @@ public class NewElevatorController : MonoBehaviour
                 {
                     elevatorSound.Play();
                     print("Playing elevator sound");
-                    //elevatorFrameDownAnim.SetBool("Opened", false);
-                    
+                    elevatorFrameDownAnim.SetBool("Opened", false);
+
                 }
                 if (timer <= 0.0f)
                 {
                     elevatorSound.Stop();
-                    //elevatorFrameUpAnim.SetBool("Opened", true);
-                    
+                    elevatorFrameUpAnim.SetBool("Opened", true);
+
                 }
-               
+
                 //elevatorAnim = buttonHit.collider.GetComponentInParent<Animator>();
                 if (up)
                     up = false;
@@ -112,7 +111,7 @@ public class NewElevatorController : MonoBehaviour
                 {
                     elevatorSound.Stop();
                 }
-                //elevatorAnim = buttonHit.collider.GetComponentInParent<Animator>();
+                elevatorAnim = buttonHit.collider.GetComponentInParent<Animator>();
                 if (down)
                     down = false;
                 else
@@ -174,5 +173,5 @@ public class NewElevatorController : MonoBehaviour
 
         }
     }
-    
+
 }

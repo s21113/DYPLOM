@@ -26,8 +26,8 @@ public class ElevatorController : MonoBehaviour
     [Header("Call + Collider Stuff")]
     public GameObject elevatorCallUp;
     public GameObject elevatorCallDown;
-    public GameObject upCollider;
-    public GameObject downCollider;
+    public GameObject elevatorCollisionUp;
+    public GameObject elevatorCollisionDown;
 
     // Start is called before the first frame update
     void Start()
@@ -77,7 +77,7 @@ public class ElevatorController : MonoBehaviour
                 if (timer > 0.0f)
                 {
                     elevatorSound.Play();
-                    print("Playing elevator sound");
+                    //print("Playing elevator sound");
                     elevatorFrameDownAnim.SetBool("Opened", false);
 
                 }
@@ -105,7 +105,7 @@ public class ElevatorController : MonoBehaviour
                 if (timer > 0.0f)
                 {
                     elevatorSound.Play();
-                    print("Playing elevator sound");
+                    //print("Playing elevator sound");
                 }
                 if (timer <= 0.0f)
                 {
@@ -128,10 +128,11 @@ public class ElevatorController : MonoBehaviour
                 if (timer > 0.0f)
                 {
                     elevatorSound.Play();
-                    print("Playing elevator sound");
+                    //print("Playing elevator sound");
                 }
                 if (timer <= 0.0f)
                 {
+                 
                     elevatorSound.Stop();
                 }
 
@@ -140,6 +141,7 @@ public class ElevatorController : MonoBehaviour
                     up = false;
                 else
                     up = true;
+                //print("------------Czy do góry "+up);
                 elevatorAnim.SetBool("Up", up);
                 elevatorAnim.SetBool("Down", false);
 
@@ -152,7 +154,7 @@ public class ElevatorController : MonoBehaviour
                 if (timer > 0.0f)
                 {
                     elevatorSound.Play();
-                    print("Playing elevator sound");
+                    //print("Playing elevator sound");
                 }
                 if (timer <= 0.0f)
                 {

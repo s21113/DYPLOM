@@ -6,7 +6,7 @@ public class ElevatorCollisionController : MonoBehaviour
 {
     public GameObject elevator, elevatorDoors, frameDoorsUp, frameDoorsDown, upCollider, downCollider;
     public Animator frameDoorsAnimDown, frameDoorsAnimUp;
-    public BoxCollider coll;
+    public BoxCollider collFront, collInside;
 
     //private bool up, down;
     // Start is called before the first frame update
