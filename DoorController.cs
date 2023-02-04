@@ -23,7 +23,7 @@ public class DoorController : MonoBehaviour
         if (other.gameObject.tag == "PlayerBody")
         {
             near = true;
-            
+            print("Czy blisko:" + near);
         }
     }
 
@@ -31,8 +31,9 @@ public class DoorController : MonoBehaviour
     {
         if (other.gameObject.tag == "PlayerBody")
         {
-            near = false;
             
+            near = false;
+            print("Czy blisko:"+near);
         }
     }
     void DoorControl(){

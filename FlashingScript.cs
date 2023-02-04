@@ -10,14 +10,16 @@ public class FlashingScript : MonoBehaviour
     private Image image;
     Color colorbackup;
     bool running;
-    public GameObject _energyBar;
-    private EnergyBar energyBar;
+    private Player energyBar;
+    public GameObject follow;
 
     // Start is called before the first frame update
     void Start()
     {
+        follow = GameObject.FindGameObjectWithTag("PlayerBody");
         image = GetComponent<Image>();
-        energyBar = _energyBar.GetComponent<EnergyBar>();
+        double difficoultyLvl = follow.GetComponentInChildren<EnergyBar>().GetHealthLevel();
+        //energyBar = this.gameObject.GetComponent<EnergyBar>();
         Color color = image.color;
         Color colorbackup = image.color;
         running = false;
@@ -27,22 +29,22 @@ public class FlashingScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown("h") && !running && (energyBar.GetHealthLevel() >= 0))
+        if (Input.GetKeyDown("h") && !running)
         {
             SetRedScreen();
         }
-        else if (Input.GetKeyDown("j") && (energyBar.GetHealthLevel() < 4))
+        else if (Input.GetKeyDown("j"))
         {
-            energyBar.updateHealthBarUP();
+            // energyBar.updateHealthBarUP();
         }
     }
     public void SetRedScreen()
     {
-        if ((energyBar.GetHealthLevel() > 1) && !running)
+        if ((follow.GetComponentInChildren<EnergyBar>().GetHealthLevel() > 1) && !running)
         {
             running = true;
             StartCoroutine("Pulse");
-        }else if (energyBar.GetHealthLevel() <= 1)
+        }else if (follow.GetComponentInChildren<EnergyBar>().GetHealthLevel() <= 1)
         {
             StartCoroutine("PulseBlack");
         }
@@ -52,7 +54,7 @@ public class FlashingScript : MonoBehaviour
     IEnumerator Pulse()
     {
        
-        energyBar.updateHealthBarDown();
+        follow.GetComponentInChildren<EnergyBar>().DecreaseHealth();
         Color color = image.color;
         int counter = 0;
         while (counter < 2)
@@ -81,15 +83,14 @@ public class FlashingScript : MonoBehaviour
         for (float i = 0; i <= 1; i += 0.04f)
         {
             image.color = new Color(0, 0, 0, i);
-            yield return new WaitForSeconds(.04f);
+            yield return new WaitForSeconds(.02f);
         }
         image.color = new Color(0, 0, 0, 3f);
 
-       
+        yield return new WaitForSeconds(1);
 
-        yield return new WaitForSeconds(.8f);
 
-        SceneManager.LoadScene("main_menu", LoadSceneMode.Single);
+        SceneManager.LoadScene("EndGameScreen", LoadSceneMode.Single);
 
         StopCoroutine("PulseBlack");
 

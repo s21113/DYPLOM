@@ -21,5 +21,6 @@ public class ZnajdzkaCounterScript : MonoBehaviour
     {
         int points = eqSystem.GetComponent<EqSystem>().GetImportantPoints();
         ZnajdzkaCounter.text = points + "";
+        ZnajdzkaCounter.color = points == 7 ? Color.green : Color.red;
     }
 }

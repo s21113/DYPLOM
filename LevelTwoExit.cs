@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -11,6 +12,25 @@ using UnityEngine.UI;
 /// </summary>
 public class LevelTwoExit : MonoBehaviour
 {
+    public Animator carAppear;
+    public GameObject carLights;
+
+    private EqSystem player;
+
+    private void Start()
+    {
+        player = GameObject.FindGameObjectWithTag("PlayerBody").GetComponentInChildren<EqSystem>();
+    }
+
+
+    private void Update()
+    {
+        if (player == null) return;
+        if (player.GetImportantPoints() == 7)
+            carLights.SetActive(true);
+    }
+
+
     public void ProcessLevelExit(GameObject player)
     {
         var playerHandler = player.GetComponent<BetterPlayerMovement>();
@@ -30,8 +50,6 @@ public class LevelTwoExit : MonoBehaviour
         {
             var eq = other.GetComponentInChildren<EqSystem>();
             if (eq == null || eq.GetImportantPoints() != 7) return;
-            // powtórne wystąpienie powyższego checka jest celowe
-            // na wypadek gdyby ktoś wyszedł poza szkołę i przebiegł do collidera
             ProcessLevelExit(other.gameObject);
         }
     }

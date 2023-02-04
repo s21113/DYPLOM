@@ -30,6 +30,9 @@ public class reppelantscript : MonoBehaviour
 
     private void OnDestroy()
     {
-        zombie.GetComponent<ZombieWalk>().setIsInRangeFalse();
+        if(zombie != null){
+            zombie.GetComponent<ZombieWalk>().setIsInRangeFalse();
+        }
+       
     }
 }

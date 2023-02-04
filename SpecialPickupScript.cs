@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class SpecialPickupScript : MonoBehaviour
@@ -25,9 +26,10 @@ public class SpecialPickupScript : MonoBehaviour
 
     private void Start()
     {
-        // zmienię to wszystko jutro jak nie bedzie napięcia
         player = GameObject.Find("Player").transform;
         eqSystem = GameObject.FindGameObjectWithTag("Inventory");
+        if (minigameInterface == null)
+            minigameInterface = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(obj => obj.CompareTag("Minigame"));
     }
 
     internal void StartMinigame(MiniGameInterface game, bool firstTime = true)
@@ -37,6 +39,7 @@ public class SpecialPickupScript : MonoBehaviour
         if (firstTime) game.LoadMinigame();
         if (TheSmartphone.instance.isActive)
             TheSmartphone.instance.Hide();
+        PauseHandler.instance.inSomeMenu = true;
         game.BringUp();
     }
 
@@ -52,7 +55,7 @@ public class SpecialPickupScript : MonoBehaviour
                 player.gameObject.GetComponent<BetterPlayerMovement>().ExitMinigame();
                 eqSystem.GetComponent<EqSystem>().PickupItem(item);
                 PauseHandler.instance.inSomeMenu = false;
-                Destroy(gameObject);
+                Destroy(this.transform.gameObject);
                 return;
             }
             else
@@ -76,8 +79,6 @@ public class SpecialPickupScript : MonoBehaviour
     {
         if (minigameInterface == null)
         {
-            Debug.LogError("Coś dziwnego się stało, zwykle tutaj nie wchodzimy.");
-            Destroy(gameObject);
             return;
         }
         float distance = Mathf.Sqrt(Mathf.Pow(player.position.x - transform.position.x, 2) + Mathf.Pow(player.position.y - transform.position.y, 2) + Mathf.Pow(player.position.z - transform.position.z, 2));

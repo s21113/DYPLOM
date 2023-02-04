@@ -11,6 +11,9 @@ public class ThrowBambus : MonoBehaviour
     private Rigidbody rb;
     private Transform flashlight;
     private int force;
+    private bool canThrow1;
+    private bool canThrow2;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -21,6 +24,8 @@ public class ThrowBambus : MonoBehaviour
         //ball = GameObject.Find("Bambus");
         //reppelant = GameObject.Find("OdstraszaczPrefab");
         force = 0;
+        canThrow1 = true;
+        canThrow2 = true;
 
     }
 
@@ -28,7 +33,7 @@ public class ThrowBambus : MonoBehaviour
     void Update()
     {
 
-        if (Input.GetKeyDown("b"))
+        if (Input.GetKeyDown("b") && canThrow1)
         {
 
             StartCoroutine("charge");
@@ -40,23 +45,25 @@ public class ThrowBambus : MonoBehaviour
             //rb.AddForce(transform.up * 100);
 
         }
-        if (Input.GetKeyUp("b"))
+        if (Input.GetKeyUp("b") && canThrow1)
         {
             StopCoroutine("charge");
             GameObject newBall = Instantiate(bambus, flashlight.position, flashlight.rotation);
             rb = newBall.GetComponent<Rigidbody>();
             rb.AddForce(transform.forward * force);
             force = 0;
+            StartCoroutine("wait1");
 
 
         }
-        if (Input.GetKeyDown("g"))
+        if (Input.GetKeyDown("g") && canThrow2)
         {
             GameObject newreppelent = Instantiate(reppelant, flashlight.position, flashlight.rotation);
             //newreppelent.transform.position = new Vector3(flashlight.transform.position.x, flashlight.transform.position.y, flashlight.transform.position.z);
             newreppelent.transform.Rotate(-90, 0, 0);
             rb = newreppelent.GetComponent<Rigidbody>();
             rb.AddForce(transform.forward * 300);
+            StartCoroutine("wait2");
 
         }
     }
@@ -68,6 +75,20 @@ public class ThrowBambus : MonoBehaviour
             force = force + 130;
             yield return new WaitForSeconds(.03f);
         }
+    }
+
+    IEnumerator wait1()
+    {
+        canThrow1 = false;
+        yield return new WaitForSeconds(30);
+        canThrow1 = true;
+    }
+
+    IEnumerator wait2()
+    {
+        canThrow2 = false;
+        yield return new WaitForSeconds(45);
+        canThrow2 = true;
     }
 
 }

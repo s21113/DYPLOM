@@ -27,7 +27,7 @@ public class FrameControlUp : MonoBehaviour
 
         if (other.gameObject.tag == "PlayerBody")
         {
-            print("Kolizja z graczem");
+            //print("Kolizja z graczem");
             player = true;
             frameDoorsAnimUp.SetBool("Opened", true);
 
@@ -51,7 +51,7 @@ public class FrameControlUp : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         frameDoorsAnimUp.SetBool("Opened", false);
-        print("Brak kolizji z graczem");
+        //print("Brak kolizji z graczem");
         player = false;
         elevator = false;
     }

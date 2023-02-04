@@ -26,6 +26,7 @@ public class EqSystem : MonoBehaviour
     }
     public void func_f742358363()
     {
+        if (importantPoints == 7) return;
         importantPoints += 1;
     }
 
@@ -54,10 +55,8 @@ public class EqSystem : MonoBehaviour
 
     IEnumerator TestMessagingService()
     {
-        //Debug.Log("Sending out a message.");
         ReceiveMessage(_j.possibleJournals[0]);
         yield return new WaitForSeconds(20f);
-        //Debug.Log("20 seconds have passed, sending out a message.");
         ReceiveMessage(_j.possibleJournals[1]);
         yield break;
     }
